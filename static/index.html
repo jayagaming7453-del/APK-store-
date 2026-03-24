@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>APK Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#000;--card:#0d0d0d;--cyan:#00f0ff;--green:#00ff88;--red:#ff2244;--purple:#cc44ff;--yellow:#ffcc00;--text:#fff;--muted:#888;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,255,0.015) 2px,rgba(0,240,255,0.015) 4px);pointer-events:none;z-index:999;}
+header{background:linear-gradient(180deg,#000,#050510);border-bottom:2px solid var(--cyan);box-shadow:0 0 30px rgba(0,240,255,0.3);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--cyan),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;box-shadow:0 0 12px rgba(0,240,255,0.5);}
+.logo-text{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:900;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;}
+.page{display:none;}.page.active{display:block;}
+.store-wrap{padding:20px;}
+.store-title{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:900;color:var(--cyan);text-shadow:0 0 15px rgba(0,240,255,0.4);margin-bottom:16px;text-align:center;letter-spacing:2px;}
+.search-bar{display:flex;align-items:center;background:#0d0d0d;border:1px solid #333;border-radius:30px;padding:10px 18px;gap:10px;margin-bottom:20px;max-width:500px;margin-left:auto;margin-right:auto;}
+.search-bar input{background:none;border:none;outline:none;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:1rem;width:100%;}
+.search-bar input::placeholder{color:var(--muted);}
+.apk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;max-width:700px;margin:0 auto;}
+.apk-card{background:var(--card);border:1px solid #1a1a2a;border-radius:14px;overflow:hidden;cursor:pointer;transition:transform 0.25s,border-color 0.25s,box-shadow 0.25s;position:relative;}
+.apk-card:hover{transform:translateY(-4px);border-color:var(--cyan);box-shadow:0 0 20px rgba(0,240,255,0.2);}
+.apk-card-thumb{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;}
+.apk-card-thumb-ph{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#05051a,#0a0a25);font-size:2.5rem;}
+.apk-card-badge{position:absolute;top:7px;left:7px;padding:2px 8px;border-radius:4px;font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.badge-new{background:var(--green);color:#000;}.badge-hot{background:var(--red);color:#fff;}.badge-pro{background:var(--purple);color:#fff;}.badge-vip{background:var(--yellow);color:#000;}.badge-mod{background:#ff8800;color:#000;}
+.apk-card-info{padding:10px;}
+.apk-card-name{font-size:0.85rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:8px;}
+.apk-card-btn{display:block;width:100%;padding:7px;background:linear-gradient(90deg,var(--cyan),#0099cc);color:#000;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:0.8rem;border:none;border-radius:20px;cursor:pointer;text-align:center;letter-spacing:1px;transition:opacity 0.2s;}
+.apk-card-btn:hover{opacity:0.85;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-state .icon{font-size:3rem;margin-bottom:12px;}
+.hero{text-align:center;padding:40px 20px 20px;max-width:500px;margin:0 auto;}
+.hero-title{font-family:'Orbitron',monospace;font-size:clamp(1.3rem,5vw,1.9rem);font-weight:900;color:var(--cyan);text-shadow:0 0 20px rgba(0,240,255,0.5);margin-bottom:6px;line-height:1.2;}
+.hero-sub{color:var(--muted);font-size:0.95rem;margin-bottom:24px;}
+.hero-thumb{width:100%;max-width:320px;aspect-ratio:16/9;object-fit:cover;border-radius:14px;border:2px solid var(--cyan);box-shadow:0 0 24px rgba(0,240,255,0.3);margin:0 auto 24px;display:block;}
+.hero-thumb-ph{width:100%;max-width:320px;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#050520,#0a0a1a);border-radius:14px;border:2px solid var(--cyan);box-shadow:0 0 24px rgba(0,240,255,0.3);margin:0 auto 24px;font-size:4rem;}
+.action-btns{display:flex;flex-direction:column;gap:12px;max-width:320px;margin:0 auto;padding-bottom:40px;}
+.big-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;border-radius:40px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.05rem;cursor:pointer;border:2px solid;transition:all 0.25s;letter-spacing:1px;text-decoration:none;text-transform:uppercase;}
+.big-btn.green{border-color:var(--green);color:#000;background:var(--green);box-shadow:0 0 20px rgba(0,255,136,0.4);animation:pulse-green 2s ease-in-out infinite;}
+@keyframes pulse-green{0%,100%{box-shadow:0 0 20px rgba(0,255,136,0.4);}50%{box-shadow:0 0 35px rgba(0,255,136,0.7);}}
+.big-btn.red{border-color:var(--red);color:var(--red);background:rgba(255,34,68,0.1);}
+.big-btn.red:hover{background:var(--red);color:#fff;}
+.big-btn.blue{border-color:var(--cyan);color:var(--cyan);background:rgba(0,240,255,0.08);}
+.big-btn.blue:hover{background:var(--cyan);color:#000;}
+.big-btn.purple{border-color:var(--purple);color:var(--purple);background:rgba(204,68,255,0.08);}
+.big-btn.purple:hover{background:var(--purple);color:#fff;}
+.loading{text-align:center;padding:60px 20px;color:var(--cyan);}
+.loading .spin{font-size:2.5rem;animation:spin 1s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+footer{text-align:center;padding:20px;color:var(--muted);font-size:0.8rem;border-top:1px solid #111;}
+@media(max-width:400px){.apk-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" onclick="goHome()">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">APK STORE</div>
+  </div>
+</header>
+
+<div id="page-store" class="page active">
+  <div class="store-wrap">
+    <div class="store-title">⚡ APK STORE</div>
+    <div class="search-bar">
+      <span>🔍</span>
+      <input type="text" id="search-input" placeholder="Search apps..." oninput="renderStore()"/>
+    </div>
+    <div id="loading" class="loading"><div class="spin">⚡</div><p style="margin-top:12px">Loading...</p></div>
+    <div id="apk-grid" class="apk-grid" style="display:none"></div>
+    <div id="empty-state" class="empty-state" style="display:none">
+      <div class="icon">📭</div><p>Koi app nahi mila.</p>
+    </div>
+  </div>
+  <footer>© 2026 All Rights Reserved</footer>
+</div>
+
+<div id="page-single" class="page">
+  <div class="hero" id="single-content"></div>
+  <footer>© 2026 All Rights Reserved</footer>
+</div>
+
+<script>
+let allApks = [];
+
+async function loadApks() {
+  try {
+    const res = await fetch('/api/apks');
+    allApks = await res.json();
+  } catch(e) {
+    allApks = [];
+  }
+  document.getElementById('loading').style.display = 'none';
+  renderStore();
+}
+
+function renderStore() {
+  const grid = document.getElementById('apk-grid');
+  const empty = document.getElementById('empty-state');
+  const q = (document.getElementById('search-input').value||'').toLowerCase();
+  const list = q ? allApks.filter(a=>a.name.toLowerCase().includes(q)) : allApks;
+  grid.innerHTML = '';
+  if (!list.length) { empty.style.display='block'; grid.style.display='none'; return; }
+  empty.style.display = 'none'; grid.style.display = 'grid';
+  const bc = {new:'badge-new',hot:'badge-hot',pro:'badge-pro',vip:'badge-vip',mod:'badge-mod'};
+  list.forEach(apk => {
+    const card = document.createElement('div');
+    card.className = 'apk-card';
+    const thumb = apk.img_url
+      ? `<img class="apk-card-thumb" src="${apk.img_url}" alt="${apk.name}"/>`
+      : `<div class="apk-card-thumb-ph">📦</div>`;
+    const badge = apk.badge
+      ? `<span class="apk-card-badge ${bc[apk.badge]||''}">${apk.badge.toUpperCase()}</span>` : '';
+    card.innerHTML = `${thumb}${badge}
+      <div class="apk-card-info">
+        <div class="apk-card-name">${apk.name}</div>
+        <button class="apk-card-btn" onclick="showSingle(${apk.id})">INSTALL</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function showSingle(id) {
+  const apk = allApks.find(a => a.id === id);
+  const c = document.getElementById('single-content');
+  if (!apk) { goHome(); return; }
+  const thumb = apk.img_url
+    ? `<img class="hero-thumb" src="${apk.img_url}" alt="${apk.name}"/>`
+    : `<div class="hero-thumb-ph">📦</div>`;
+  const tgBtn  = apk.tg      ? `<a class="big-btn blue"   href="${apk.tg}"      target="_blank">💬 JOIN TELEGRAM</a>` : '';
+  const supBtn = apk.support ? `<a class="big-btn purple"  href="${apk.support}" target="_blank">📩 CONTACT SUPPORT</a>` : '';
+  const vidBtn = apk.video   ? `<a class="big-btn red"     href="${apk.video}"   target="_blank">▶ WATCH VIDEO</a>` : '';
+  c.innerHTML = `${thumb}
+    <div class="hero-title">${apk.name}</div>
+    <div class="hero-sub">${apk.file_name} · ${apk.date}</div>
+    <div class="action-btns">
+      <a class="big-btn green" href="${apk.apk_url}" download="${apk.file_name}">⬇ DOWNLOAD APP</a>
+      ${vidBtn}${tgBtn}${supBtn}
+      <span style="color:var(--muted);font-size:0.8rem;cursor:pointer;text-decoration:underline;margin-top:4px" onclick="goHome()">← Saare Apps</span>
+    </div>`;
+  history.pushState({}, '', `?apk=${id}`);
+  showPage('single');
+}
+
+function showPage(n) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+n).classList.add('active');
+}
+function goHome() {
+  history.pushState({}, '', location.pathname);
+  showPage('store');
+}
+
+// Check URL for direct APK link
+window.addEventListener('load', async () => {
+  await loadApks();
+  const id = new URLSearchParams(location.search).get('apk');
+  if (id) showSingle(Number(id));
+});
+</script>
+</body>
+</html>
